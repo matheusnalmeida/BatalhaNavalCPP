@@ -1,8 +1,9 @@
 #include <iostream>
-#include "Tabuleiro.h"
+#include "Jogo.h"
 
 int main() {
-	Tabuleiro* tabuleiro = new Tabuleiro();
-	tabuleiro->printarTabuleiro();
-	delete tabuleiro;
+	Jogo* jogo = new Jogo();
+	//jogo->getCPU()->printarTabuleiro();
+	jogo->iniciarJogo();
+	delete jogo;
 }

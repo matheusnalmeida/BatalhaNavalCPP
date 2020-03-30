@@ -25,7 +25,7 @@ Tabuleiro::Tabuleiro()
 	//Iniciando vetor de direcoes
 	this->vetorDeDirecoes = new VetorDinamico<char>(4);
 	this->vetorDeDirecoes->add('d'); this->vetorDeDirecoes->add('e'); this->vetorDeDirecoes->add('c'); this->vetorDeDirecoes->add('b');
-	//Iniciando vetor de posicoes livres
+	//Iniciando vetores de posicoes livres
 	this->posicoes_livres1d = new VetorDinamico<int>(10);
 	this->posicoes_livres2d = new VetorDinamico<VetorDinamico<int>*>(10);
 	for (int i = 0; i < 10; i++) {
@@ -110,6 +110,7 @@ bool Tabuleiro::cadastrarBarco(int x,int y,Barco* barco)
 				posicaoFim = (posicaoInicio + tamanho_barco) - 1;
 				if (this->validaIntervalo(x, y, posicaoInicio, posicaoFim, direcaoNovoBarco)) {
 					for (int i = posicaoInicio; i <= posicaoFim; i++) {
+						barco->cadastrarPosicao(x, i);
 						this->matriz->get(x)->insert(i, 'x');
 					}
 					return true;
@@ -120,6 +121,7 @@ bool Tabuleiro::cadastrarBarco(int x,int y,Barco* barco)
 				posicaoFim = (posicaoInicio - tamanho_barco) + 1;
 				if (this->validaIntervalo(x, y, posicaoInicio, posicaoFim, direcaoNovoBarco)) {
 					for (int i = posicaoInicio; i >= posicaoFim; i--) {
+						barco->cadastrarPosicao(x, i);
 						this->matriz->get(x)->insert(i, 'x');
 					}
 					return true;
@@ -130,6 +132,7 @@ bool Tabuleiro::cadastrarBarco(int x,int y,Barco* barco)
 				posicaoFim = (posicaoInicio - tamanho_barco) + 1;
 				if (this->validaIntervalo(x, y, posicaoInicio, posicaoFim, direcaoNovoBarco)) {
 					for (int i = posicaoInicio; i >= posicaoFim; i--) {
+						barco->cadastrarPosicao(i, y);
 						this->matriz->get(i)->insert(y, 'x');
 					}
 					return true;
@@ -140,6 +143,7 @@ bool Tabuleiro::cadastrarBarco(int x,int y,Barco* barco)
 				posicaoFim = (posicaoInicio + tamanho_barco) - 1;
 				if (this->validaIntervalo(x, y, posicaoInicio, posicaoFim, direcaoNovoBarco)) {
 					for (int i = posicaoInicio; i <= posicaoFim; i++) {
+						barco->cadastrarPosicao(i, y);
 						this->matriz->get(i)->insert(y, 'x');
 					}
 					return true;
@@ -154,16 +158,6 @@ bool Tabuleiro::cadastrarBarco(int x,int y,Barco* barco)
 		}
 	}
 	return false;
-}
-
-void Tabuleiro::printarTabuleiro()
-{
-	for (int i = 0; i < this->matriz->size(); i++) {
-		for (int y = 0; y < this->matriz->get(i)->size(); y++) {
-			std::cout << this->matriz->get(i)->get(y) << " ";
-		}
-		std::cout << std::endl;
-	}
 }
 
 char Tabuleiro::valorLinhaColuna(int x, int y)
@@ -431,5 +425,67 @@ char Tabuleiro::escolherDirecao(VetorDinamico<char>* vetorDeDirecoes)
 	vetorDeDirecoes->remove(posicaoDirecao);
 	return direcao;
 }
+
+std::string Tabuleiro::atirarEmBarco(int x, int y)
+{
+	if (this->validaCoordenadas(x, y)) {
+		if (this->matriz->get(x)->get(y) == 'x') {
+			this->matriz->get(x)->insert(y, '1');
+			int posicaoBarco = this->retornarBarco(x, y);
+			Barco* barcoAtingido = this->vetorDeBarcos->get(posicaoBarco);
+			barcoAtingido->reduzirTamanho();
+			if (barcoAtingido->getTamanho() == 0) {
+				this->vetorDeBarcos->remove(posicaoBarco);
+				std::string text("ACERTOU\n");
+				text.append("O barco " + barcoAtingido->getNome() + " foi destruido");
+				delete barcoAtingido;
+				return text;
+			}
+			else {
+				return "ACERTOU";
+			}
+		}
+		else {
+			return "AGUA";
+		}
+	}
+}
+
+VetorDinamico<Barco*>* Tabuleiro::retornarBarcos()
+{
+	return this->vetorDeBarcos;
+}
+
+int Tabuleiro::retornaQuantidadeDeBarcos()
+{
+	return this->vetorDeBarcos->size();
+}
+
+int Tabuleiro::retornarBarco(int x, int y)
+{
+	for (int i = 0; i < this->vetorDeBarcos->size(); i++) {
+		VetorDinamico<VetorDinamico<int>*>* coordenadas_barco_atual = this->vetorDeBarcos->get(i)->getCoordenadas();
+		for (int z = 0; z < coordenadas_barco_atual->size(); z++) {
+			if (coordenadas_barco_atual->get(z)->get(0) == x && coordenadas_barco_atual->get(z)->get(1) == y) {
+				return i;
+			}
+		}
+	}
+
+	return -1;
+}
+
+
+
+void Tabuleiro::printarTabuleiro()
+{
+	for (int i = 0; i < this->matriz->size(); i++) {
+		for (int y = 0; y < this->matriz->get(i)->size(); y++) {
+			std::cout << this->matriz->get(i)->get(y) << " ";
+		}
+		std::cout << std::endl;
+	}
+}
+
 
 

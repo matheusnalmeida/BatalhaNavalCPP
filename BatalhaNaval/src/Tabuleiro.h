@@ -1,6 +1,8 @@
 #pragma once
 #include "VetorDinamico.h"
 #include "Barco.h"
+#include <string>
+
 class Tabuleiro {
 private:
 	VetorDinamico<VetorDinamico<char>*>* matriz;
@@ -27,6 +29,8 @@ private:
 	//Ira verificar se as coordenadas passadas possuem barco
 	bool verificaBarcoExiste(int x, int y);
 	char escolherDirecao(VetorDinamico<char>* vetorDeDirecoes);
+	//Ira retornar a posicao do barco no vetor de barcos dado as coordenadas xy da matriz
+	int retornarBarco(int x, int y);
 public:
 	Tabuleiro();
 	~Tabuleiro();
@@ -34,4 +38,7 @@ public:
 	void printarTabuleiro();
 	//Retorna o valor que esta armazenado na posicao xy da matriz
 	char valorLinhaColuna(int x, int y);
+	std::string atirarEmBarco(int x, int y);
+	VetorDinamico<Barco*>* retornarBarcos();
+	int retornaQuantidadeDeBarcos();
 };
